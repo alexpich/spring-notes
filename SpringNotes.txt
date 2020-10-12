@@ -1,0 +1,195 @@
+Spring Notes
+
+Goals of Spring
+    - Lightweight development with Java POJOS
+    - Dependency injection to promote loose coupling
+    - Declarative programming with Aspect-Oriented-Programming (AOP)
+    - Minimize boilerplate Java code
+
+Core Container
+    1) Beans
+    2) Core
+    3) SpEL
+    - Spring Expression Language
+    4) Context
+
+Summary:
+    - Factory for creating beans
+    - Manage bean dependencies
+
+Infrastructure
+    1) AOP
+    2) Aspects
+    3) Instrumentation
+    4) Messaging
+
+    Summary:
+    - Aspect Oriented Programming (Logging, security, transactions, instrumentations, etc that you can apply these services to your objects in a declarative fashion )
+    
+Data Access Layer
+    1) JDBC
+    2) ORM
+    3) Transactions
+    4) OXM
+    5) JMS
+
+    Summary: 
+    - Communicating with databases.
+    - JDBC Helper classes (can reduce your jdbc code by 50%).
+    - ORM to relational Mapping and Integration with Hibernate and JPA
+    - Java Message Service allows you to send messages to a message queue asynchronously (many helper classes to reduce code by 50%)
+    
+Web Layer
+    1) Servlet
+    2) WebSocket
+    3) Web
+    4) Portlet
+
+    Summary: 
+    - All web related classes
+    - Home of the Spring MVC module
+    
+    
+Spring Projects
+    - Additional Spring modules built-on top of the core Spring Framework
+    - Only use what you need...
+    - Spring Cloud, Spring Data
+    - Spring Batch, Spring Security
+    - Spring for Android, Spring Web Flow
+    - Spring Web Services, Spring LDAP
+    
+Tomcat
+    MacOS Installation
+        1) Download the .tar
+        2) Install it
+        3) Unzip and move it to your preferred directory
+        4) cd in to the directory
+        5) bin/startup.sh (to start the server)
+        6) go to localhost:8080
+        7) bin/shutdown.sh (to shut down server)
+        
+Spring Jar files
+    https://repo.spring.io/release/org/springframework/spring/
+    This method does not require Maven. Download the dist and save it somewhere on your computer. Go to lib and copy all the JARs and then make a new folder called lib in Eclipse. Paste the JARs in that new folder. Then go to the project properties by right clicking and hitting properties on the main folder. Go to Java Build Path, Librariers, Add JARS.
+    
+Inversion of Control
+    This is important!
+    - The approach of outsourcing construction and management of objects.
+    
+Spring Container
+    1) Primary functions
+    - Create and manage objects (Inversion of Control)
+    - Inject object's dependencies (Dependency Injection)
+
+Configuring Spring Container
+    1) XML configuration file (legacy, but most legacy apps still use this)
+    2) Java Annotations (modern)
+    3) Java Source Code (modern)
+    Spring Development Process
+    1) Configure your Spring Beans
+    2) Create a Spring Container
+    3) Retrieve Beans from Spring Container
+    
+    Step 1: Configure your Spring Beans
+        File: applicationContext.xml
+
+        <beans ...>
+          <bean id="myCoach"     
+        class="com.luv2code.springdemo.BaseballCoach">
+          </bean>
+        </beans>
+        
+Step 2: Create a Spring Container 
+    - Spring container is generically known as ApplicationContext
+    - Specialized implementations
+    -- ClassPathXmlApplicationContext
+    -- AnnotationConfigApplicationContext
+    -- GenericWebApplicationContext
+    -- others...
+
+    Ex) 
+      ClassPathXmlApplicationContext context = new ClassPAthXmlApplicationContext("applicationContext.xml");
+      
+Step 3: Retrieve Beans from Container
+    // create a spring container
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+    // retrieve bean from spring container, the id must match what we are passing in... myCoach
+    Coach theCoach = context.getBean("myCoach", Coach.class);
+    
+    The first argument is the id in applicationContext.xml and the second argument is the Interface
+    
+FAQ: What is a Spring Bean?
+
+A "Spring Bean" is simply a Java object.
+
+When Java objects are created by the Spring Container, then Spring refers to them as "Spring Beans".
+
+Spring Beans are created from normal Java classes .... just like Java objects.
+
+
+---
+
+In the early days, there was a term called "Java Beans". Spring Beans have a similar concept but Spring Beans do not follow all of the rigorous requirements of Java Beans.
+
+---
+
+
+Dependency Injection
+    - The dependency inversion principle.
+    - The client delegates to calls to another object the responsibility of providing dependencies.
+    Basically...
+    1) Give me a "Car" object
+    ->
+    2) Car Factory, technicians will assemble the car for you. They will inject all the "dependency" (same thing as "helper objects") for you.
+    3) Give "Car" to you
+
+    Summary: You simply outsource the construction to an external entity.
+    
+Injection Types
+    - There are many types of injection with Spring
+    - We will cover the two most common:
+    1) Constructor Injection
+    2) Setter Injection
+    - Autowiring will come later...
+    
+Development Process - Contructor Injection
+    1) Define the dependency interface and class
+    2) Create a constructor in your class for injections
+    3) Configure the dependency injection in Spring config file    
+
+Step 1: Define the dependency interface and class
+    File: FortuneService.java
+     public interface FortuneService {
+      public String getFortune();
+    }
+
+    File: HappyFortuneService.java
+      public class HappyFortuneService implements FortuneService {
+      public String getFortune() {
+        return "Today is your lucky day!";
+      }
+    }
+
+
+Step 2: Create a constructor
+    File: BaseballCoach.java
+    public class BaseballCoach implements Coach {
+
+      // define field
+      private FortuneService fortuneService;
+
+      // define constructor
+      public BaseballCoach(FortuneService theFortuneService) {
+        fortuneService = theFortuneService;
+      }
+    }
+    
+Step 3: Configure the dependency injection in Spring config file
+    File: applicationContext.xml
+    <bean id="myFortuneService" class="com.alex.HappyFortuneService">
+    </bean>
+
+    <bean id="myCoach" class="com.alex.BaseballCoach">
+      <cosntructor-arg ref="myFortuneService" />
+    </bean>
