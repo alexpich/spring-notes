@@ -211,11 +211,13 @@ Step 1: Create the setter method(s) in your class for injections
       private FortuneService fortuneService;
 
       public CricketCoach() {
-        // Called by Spring during setter injection
-        public void setFortuneService(FortuneService fortuneService) {
-          this.fortuneService = fortuneService;
-        }
       }
+
+      // Called by Spring during setter injection
+      public void setFortuneService(FortuneService fortuneService) {
+        this.fortuneService = fortuneService;
+      }
+
     }
     
 **Step 2: Configure the dependency injection in Spring config file**
@@ -236,4 +238,13 @@ Step 1: Create the setter method(s) in your class for injections
     -> Spring Framework
     ```java
     HappyFortuneService myFortuneService = new HappyFortuneService();
+    ```
+    
+**Step 2:**
+    ```xml
+     <bean id="myCricketCoach" class="com.alex.CricketCoach">
+      <property name="fortuneService" ref="myFortuneService" />
+      <property name="emailAddress" value="alex@email.com" />
+      <property name="team" value="Team One" />
+     </bean>
     ```
