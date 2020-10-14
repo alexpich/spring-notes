@@ -193,3 +193,47 @@ Step 3: Configure the dependency injection in Spring config file
     <bean id="myCoach" class="com.alex.BaseballCoach">
       <cosntructor-arg ref="myFortuneService" />
     </bean>
+
+    a) Define the dependency/helper
+    b) Inject that dependency into our class using ref (constructor injection)
+    
+    
+Setter Injection
+    - Inject dependencies by calling setter method(s) on your class
+    
+Development Process - Setter Injection
+    1) Create setter method(s) in your class for injections
+    2) Configure the dependency injection in Spring config file
+    
+Step 1: Create the setter method(s) in your class for injections
+    File: CricketCoach.java
+    public class CricketCoach implements Coach {
+      private FortuneService fortuneService;
+
+      public CricketCoach() {
+        // Called by Spring during setter injection
+        public void setFortuneService(FortuneService fortuneService) {
+          this.fortuneService = fortuneService;
+        }
+      }
+    }
+    
+**Step 2: Configure the dependency injection in Spring config file**
+    ```xml
+    <bean id="myFortuneService" class="com.alex.HappyFortuneService">
+    </bean>
+
+    <bean id="myCricketCoach" class="com.alex.CricketCoach">
+      <property name="fortuneService" ref="myFortuneService"/>
+    </bean>
+    ```
+    
+**How Spring Processes your Config File**
+    ```xml
+    <bean id="myFortuneService" class="com.alex.HappyFortuneService">
+    </bean>
+    ```
+    -> Spring Framework
+    ```java
+    HappyFortuneService myFortuneService = new HappyFortuneService();
+    ```
