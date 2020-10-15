@@ -231,20 +231,111 @@ Step 1: Create the setter method(s) in your class for injections
     ```
     
 **How Spring Processes your Config File**
-    ```xml
-    <bean id="myFortuneService" class="com.alex.HappyFortuneService">
-    </bean>
-    ```
-    -> Spring Framework
-    ```java
-    HappyFortuneService myFortuneService = new HappyFortuneService();
-    ```
-    
+```xml
+<bean id="myFortuneService" class="com.alex.HappyFortuneService">
+</bean>
+```
+-> Spring Framework
+```java
+HappyFortuneService myFortuneService = new HappyFortuneService();
+```
+
+**Injecting Literal Values**
+    Example... injecting strings such and team name or email address into the CricketCoach
+    **Development Process**
+    1) Create setter method(s) in your class for injections
+    2) Configure the injection in Spring config file
+
+**Step 1:**
+```java
+public class CricketCoach implements Coach {
+  private String emailAddress;
+  private String team;
+
+  // Create Setter methods
+  public void setEmailAddress(String emailAddress) {
+    // ....
+  }
+  public void setTeam(String team) {
+    // ...
+  }
+}
+```
+
 **Step 2:**
-    ```xml
-     <bean id="myCricketCoach" class="com.alex.CricketCoach">
-      <property name="fortuneService" ref="myFortuneService" />
-      <property name="emailAddress" value="alex@email.com" />
-      <property name="team" value="Team One" />
-     </bean>
-    ```
+```xml
+ <bean id="myCricketCoach" class="com.alex.CricketCoach">
+  <property name="fortuneService" ref="myFortuneService" />
+  <property name="emailAddress" value="alex@email.com" />
+  <property name="team" value="Team One" />
+ </bean>
+```
+
+**Injecting Values from a Properties File**
+1) Create Properties File
+2) Load Properties File in Spring config file
+3) Reference values from Properties File
+
+**Step 1:**
+File: sport.properties
+name and value pairs
+```
+foo.email=alex@email.com
+foo.team=Extreme Challengers
+```
+
+**Step 2: **
+File: applicationContext.xml
+```xml
+  <context:property-placeholder location="classpath:sport.properties" />
+```
+
+**Step 3:**
+File: applicationContext.xml
+```xml
+<bean id="myCricketCoach" class="com.alex.CricketCoach">
+...
+<property name="emailAddress" value="${foo.email}" />
+<property name="team" value="${foo.team}" />
+</bean>
+```
+
+**Bean Scopes**
+- Scope refers to the lifecycle of a bean
+- How long does the bean live?
+- How many instances are created?
+- How is the bean shared?
+
+**Default Scope: Singleton**
+```xml
+<beans .../>
+  <bean id="myCricketCoach" class="com.alex.CricketCoach" ...>
+  </bean>
+</bean>
+```
+
+**What Is a Singleton?**
+- Spring Container creates only one instance of the bean, by default
+- It is cached in memory
+- All requests for the bean will return a SHARED reference to the SAME bean
+
+Best used when you want stateless beans aka don't maintain any state.
+
+**Explicitly Specify Bean Scope**
+```xml
+<beans .../>
+  <bean id="myCricketCoach" class="com.alex.CricketCoach" scope="singleton">
+  </bean>
+</bean>
+```
+
+**Prototype Scope Example**
+Prototype scope: new object for each request
+```xml
+<beans ...>
+  <bean id="myCoach" class="com.alex.TrackCoach" scope="prototype">
+  ...
+  </bean>
+</beans
+```
+Good for keeping track of stateful data.
