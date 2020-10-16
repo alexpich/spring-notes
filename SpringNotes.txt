@@ -152,6 +152,8 @@ Injection Types
     1) Constructor Injection
     2) Setter Injection
     - Autowiring will come later...
+
+-----------------
     
 Development Process - Contructor Injection
     1) Define the dependency interface and class
@@ -197,6 +199,7 @@ Step 3: Configure the dependency injection in Spring config file
     a) Define the dependency/helper
     b) Inject that dependency into our class using ref (constructor injection)
     
+-----------------
     
 Setter Injection
     - Inject dependencies by calling setter method(s) on your class
@@ -239,6 +242,8 @@ Step 1: Create the setter method(s) in your class for injections
 ```java
 HappyFortuneService myFortuneService = new HappyFortuneService();
 ```
+
+-----------------
 
 **Injecting Literal Values**
     Example... injecting strings such and team name or email address into the CricketCoach
@@ -300,6 +305,8 @@ File: applicationContext.xml
 </bean>
 ```
 
+-----------------
+
 **Bean Scopes**
 - Scope refers to the lifecycle of a bean
 - How long does the bean live?
@@ -339,3 +346,427 @@ Prototype scope: new object for each request
 </beans
 ```
 Good for keeping track of stateful data.
+
+-----------------
+
+Bean Lifecycle
+    1) Container Started
+    2) Bean Instantiated
+    3) Dependencies Injected
+    4) Internal Spring Processing
+    5) Your Custom Init Method
+    6) Bean is Ready For Use / Container Is Shutdown
+    7) Your Custom Destroy Method
+    8) STOP
+    
+Bean Lifecycle Methods / Hooks
+    - You can add custom code during bean initialization
+      - Calling custom business logic methods
+      - Setting up handles to resources (db, sockets, file, etc)
+    - You can add custom code during bean destruction
+      - Calling custom business logic methods
+      - Setting up handles to resources (db, sockets, file, etc)
+      
+**Init: method configuration**
+    ```xml
+    <beans ...>
+      <bean id="myCoach" class="com.alex.TrackCoach" init-method="doMyStartupStuff" ...>
+      </bean>
+    </beans>
+    ```
+
+**Destroy: method configuration**
+    ```xml
+    <beans ...>
+      <bean id="myCoach" class="com.alex.TrackCoach" destroy-method="doMyStartupStuff" ...>
+      </bean>
+    </beans>
+    ```
+    
+Development Process
+    1) Define your methods for init and destroy
+    2) Configure the method names in Spring config file
+    
+    
+Special Note about init and destroy Method Signatures
+
+    When using XML configuration, I want to provide additional details regarding the method signatures of the init-method  and destroy-method .
+
+    Access modifier
+    The method can have any access modifier (public, protected, private)
+
+    Return type
+    The method can have any return type. However, "void' is most commonly used. If you give a return type just note that you will not be able to capture the return value. As a result, "void" is commonly used.
+
+    Method name
+    The method can have any method name.
+
+    Arguments
+    The method can not accept any arguments. The method should be no-arg.   
+
+------
+
+**What are Java Annotations?**
+    - Special labels/markers added to Java classes
+    - Provide meta-data about the class
+    - Processed at compile time or run-time for special processing
+
+
+**Why Spring Configuration with Annotations?**
+    - XML configuration can be verbose
+    - Configure your Spring beans with Annotations
+    - Annotations minimizes the XML configuration
+    
+**Scanning for Component Classes**
+    - Spring will scan your Java classes for special annotations
+    - Automatically register the beans in the Spring container
+    
+**Development Process**
+    1) Enable component scanning in Spring config file
+    2) Add the @Component Annotation to your Java classes
+    3) Retrieve bean from Spring container
+
+**Step 1:** 
+```xml
+<beans ...>
+  <context:component-scan base-package="com.alex" />
+</beans>
+```
+
+**Step 2**
+```java
+@Component("thatSillyCoach")
+public class TennisCoach implements Coach {
+  @Override
+  public String getDailyWorkout() {
+    return "Practice your backhand valley";
+  }
+}
+```
+
+**Step 3**
+    - Same coding as before... nothing changes.
+    ```java
+    Coach theCoach = context.getBean("thatSillyCoach", Coach.class);
+    ```
+
+    Spring also supports Default Bean IDs
+    - Default bean id: the class name, make first letter lower-case
+
+    Class Name
+    TennisCoach
+
+    ->
+
+    Default Bean Id
+    tennisCoach
+    
+------
+    
+**What is Spring AutoWiring?**
+- For dependency injection, Spring can use auto wiring.
+- Spring will look for a class that *matches* the property
+    - *matches* by type: class or interface
+- Spring will inject it automatically... hence it is autowired
+
+**Autowiring Example**
+- Injecting FortuneService into a Coach implementation
+- Spring will scan @Components
+- Any one implements FortuneService interface???
+- If so, let's inject them. For example: HappyFortuneService
+
+**Autowiring Injection Types**
+- Constructor Injection
+- Setter Injection
+- Field Injections
+
+**Development Process - Constructor Injection**
+1) Define the dependency interface and class
+2) Create a constructor in your class for injections
+3) Configure the dependency injection with @Autowired Annotation
+    
+**Step 1:**
+File: FortuneService.java
+```java
+public interface FortuneService {
+  public String getFortune();
+}
+```
+File: HappyFortuneService.java
+```java
+@Component
+public class HappyFortuneService implements FortuneService {
+  public String getFortune() {
+    return "Today is your lucky day!"
+  }
+}
+```
+
+**Step 2**
+File: TennisCoach.java
+```java
+@Component
+public class TennisCoach implements Coach {
+  private FortuneService fortuneService;
+
+  public TennisCoach(FortuneService theFortuneService) {
+    fortuneService = theFortuneService;
+  }
+}
+```
+
+**Step 3**
+File: TennisCoach.java
+```java
+@Component
+public class TennisCoach implements Coach {
+  private FortuneService fortuneService;
+
+  @Autowired
+  public TennisCoach(FortuneService theFortuneService) {
+    fortuneService = theFortuneService;
+  }
+}
+```
+
+------
+AUTOWIRING
+FAQ: What if there are multiple FortuneService implementations?
+
+When using autowiring, what if there are multiple FortuneService implementations? Like in the image below?
+---
+ANSWER
+
+Spring has special support to handle this case. Use the @Qualifier annotation.
+
+---------
+
+
+**Setter Injection**
+- Inject dependencies by calling setter method(s) on your class
+
+**Autowiring Example**
+- Injecting FortuneService into a Coach implementation
+- Spring will scan @Components
+- Any one implements FortuneService interface???
+- If so, let's inject them. For example: *HappyFortuneService*
+    
+**Development Process - Setter Injection**
+    1) Create setter method(s) in your class for injections
+    2) Configure the dependency injection with @Autowired Annotation
+
+    **Step 1**
+    File: TennisCoach.java
+    ```java
+    @Component
+    public class TennisCoach implements Coach {
+      private FortuneService fortuneService;
+
+      public TennisCoach() {
+      }
+
+      public void setFortuneService(FortuneService fortuneService) {
+        this.fortuneService = fortuneService;
+      }
+      ...
+    }
+    ```
+
+    **Step 2**
+    File: TennisCoach.java
+    ```java
+    @Component
+    public class TennisCoach implements Coach {
+      private FortuneService fortuneService;
+
+      public TennisCoach() {
+      }
+
+      @Autowired
+      public void setFortuneService(FortuneService fortuneService) {
+        this.fortuneService = fortuneService;
+      }
+      ...
+    }
+    ```
+
+**Method Injection**
+    - Inject dependencies by calling ANY method on your class
+
+    Simply give: 
+    ```java
+    @Autowired
+    ```
+
+    **Step 2**
+    File: TennisCoach.java
+    ```java
+    @Component
+    public class TennisCoach implements Coach {
+      private FortuneService fortuneService;
+
+      public TennisCoach() {
+      }
+
+      @Autowired
+      public void doSomeCrazyStuff(FortuneService fortuneService) {
+        this.fortuneService = fortuneService;
+      }
+      ...
+    }
+    ```
+    
+---------------
+
+**Field Injection with Annotations and Autowiring**
+    - Inject dependencies by setting field values on your class directly (even private fields)
+    - Accomplished by using Java Reflection
+
+**Development Process - Field Injection**
+    1) Configure the dependency injection with Autowired Annotation
+    - Applied directly to the field
+    - No need for setter methods
+
+**Step 1**
+    File: TennisCoach.java
+    ```java
+    public class TennisCoach implements Coach {
+      @Autowired
+      private FortuneService fortuneService;
+
+      public TennisCoach() {
+      }
+
+      // no need for setter methods
+      ...
+    }
+    ```
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
