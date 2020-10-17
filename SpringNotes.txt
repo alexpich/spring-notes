@@ -643,28 +643,183 @@ Spring has special support to handle this case. Use the @Qualifier annotation.
     ```
 
     
+-----------
+**Multiple FortuneService Implementations**
+    Solution: Be specific - @Qualifier
+        ```java
+        public class TennisCoach implements Coach {
+
+          @Autowired
+          @Qualifier("happyFortuneService")
+          private FortuneService fortuneService;
+
+          ...
+        }
+        ```
+
+**Injection Types**
+Can apply **@Qualifier** annotation to:
+- Constructor Injection
+- Setter injection methods
+- Field injection
+
+---------
+**Explicitly Specify Bean Scope**
+    ```java
+    @Component
+    @Scope("singleton")
+    public class TennisCoach implements Coach{
+    }
+    ```
+**Bean Lifecycle Method Annotations**
+Development Process
+    1) Define your methods for init and destroy
+    2) Add annotations: @PostConstruct and @PreDestroy
+
+Java 9 + Errors with @PostConstruct and @PreDestroy
+    https://www.udemy.com/course/spring-hibernate-tutorial/learn/lecture/9120288#content
+
+**Special Note about Destroy Lifecycle and Prototype Scope**
+Here is a subtle point you need to be aware of with "prototype" scoped beans.
+
+For "prototype" scoped beans, Spring does not call the @PreDestroy method.  Gasp!  
+https://www.udemy.com/course/spring-hibernate-tutorial/learn/lecture/5389290#content   
     
     
     
+------------
     
+**Spring Configuration with Java Code**
+    - No XML
+    - Configure Spring Container with Java
+
+**3 Ways of Configuring Spring Container**
+    1) Full XML Config
+    2) XML Component Scan
+    3) Java Configuration Class
+
+**Development Process**
+    1) Create a Java class and annotate as **@Configuration**
+    2) Add component scanning support **@ComponentScan** (optional)
+    3) Read Spring Java configuration class
+    4) Retrieve bean from Spring container
     
+    **Step 1:**
+    ```java
+    @Configuration
+    public class SportConfig {
+    }
+    ```
+    **Step 2:**
+    ```java
+    @Configuration
+    @ComponentScan("com.alex")
+    public class SportConfig {
+    }
+    ```
+    **Step 3:**
+    In our main
+    ```java
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SportConfig.class);
+    ```
+    **Step 4:**
+    ```java
+    Coach theCoach = context.getBean("tennisCoach", Coach.class);
+    ```
+------------------- 
     
+**Defining Spring Beans with Java Code**
+
+**Development Process**
+1) Define method to expose bean
+2) Inject bean dependencies
+3) Read Spring Java configuration class
+4) Retrieve bean from Spring container
+
+**Step 1**
+No component scan. Define each bean individually.
+```java
+@Configuration
+public class SportConfig() {
+
+  @Bean
+  public Coach swimCoach() {
+    SwimCoach mySwimCoach = new SwimCoach();
+
+  return mySwimCoach;
+  }
+}
+```
+**Step 2**
+```java
+@Configuration
+public class SportConfig() {
+
+  // Create instance of HappyFortuneService and return it
+  @Bean
+  public FortuneService happyFortuneService() {
+    return new HappyFortuneService();
+  }
+
+  // Inject happyFortuneService
+  @Bean
+  public Coach swimCoach() {
+    SwimCoach mySwimCoach = new SwimCoach(happyFortuneService());
+
+  return mySwimCoach;
+  }
+}
+```
+**Step 3**
+```java
+AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SportConfig.class); 
+```
+**Step 4**
+The beanId "swimCoach" is the method name we defined in the Bean.
+```java
+Coach theCoach = context.getBean("swimCoach", Coach.class);
+```
+
+--------------
+**Injecting Values from Properties File**
+
+**Development Process**
+1) Create Properties File
+2) Load Properties File in Spring config
+3) Reference values from Properties File
+
+**Step 1**
+File: sport.properties
+```
+foo.email=alex@email.com
+foo.team=Awesome Java Coders
+```
+**Step 2**
+Load the props file
+```java
+@Configuration
+@PropertySource("classpath:sport.properties")
+public class SportConfig {
+  ...
+}
+```
+**Step 3**
+File: SwimCoach.java
+```java
+public class SwimCoach implements Coach {
+  @Value("${foo.email}")
+  private String email;
+
+  @Value("${foo.team}")
+  private String team;
+  
+  ...
+}
+```
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+---------------
+
+
     
     
     
