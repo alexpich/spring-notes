@@ -1342,6 +1342,144 @@ or
 4) Run app using Spring Boot Maven plugin, `mvnw spring-boot:run`
     
     
+**----------------**
+**Spring Boot - Injecting Custom Application Properties**
+
+**Problem**
+- You need for your app to be configurable... no hard-coding of values
+- You need to read app configuration from a properties file
+
+Solution: Application Properties file
+- By default, Spring Boot reads information from a standard properties file
+    - Located at: `src/main/resources/application.properties`
+- You can define ANY custom properties in this file
+- Your Spring Boot app can access using `@Value`
+    
+**Development Process**
+    1) Define custom properties in **application.properties**
+    2) Inject properties into Spring Boot applicationg using `@Value`
+    
+    
+**Step 1**
+```properties
+#
+# Define custom properties
+#
+coach.name=Mickey Mouse
+team.name=The Mouse Club
+```
+**Step 2**
+```java
+@RestController
+public class FunRestController {
+
+  // inject properties
+  @Value("${coach.name}")
+  private String coachName;  
+
+  @Value("${team.name}")
+  private String teamName;  
+}
+```  
+
+**Core Properties**
+```properties
+# Log levels severity mapping
+logging.level.org.springframework=DEBUG
+logging.level.org.hibernate=TRACE
+logging.level.org.alex=INFO
+# Log file name
+logging.file=my-crazy-stuff.log
+```
+__Logging levels__
+TRACE
+DEBUG
+INFO
+WARN
+ERROR
+FATAL
+OFF
+    
+    
+**Web Properties**
+```properties
+# HTTP server port (default 8080)
+server.port=7070
+# Context path of the app (default /)
+server.servlet.context-path=/my-silly-app
+# Default HTTP session time out (default 30m)
+server.servlet.session.timeout=15m
+```
+combined -> `http://localhost:7070/my-silly-app/fortune`   
+
+**Actuator Properties**
+File: `src/main/resources/application.properties`
+```properties
+# Endpoints to include by name or wildcard
+management.endpoints.web.exposure.include=*
+# Endpoints to exclue by name or wildcard
+management.endpoints.web.exposure.exclude=beans,mapping
+# Base path for actuator endpoints
+management.endpoints.web.base-path=/actuator
+```Base path-> `http://localhost:7070/actuator/health`
+    
+    
+    
+**Security Properties**
+File: `src/main/resources/application.properties`
+```properties
+# Default user name
+spring.security.user.name=admin
+# Password for default user
+spring.security.user.password=topsecret
+```
+    
+    
+    
+**Data Properties**
+File: `src/main/resources/application.properties`
+```properties
+# JDBC URL of the database
+spring.datasource.url=jdbc:mysql://localhost:3306/ecommerce
+# Login username of the database
+spring.datasource.username=alex
+# Login password of the database
+spring.datasource.password=asdf
+```
+
+**Development Process**
+1) Configure the server port
+2) Configure the application context path    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
