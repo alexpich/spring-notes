@@ -1179,25 +1179,167 @@ For IntelliJ users
 3) Verify the app is automatically reloaded    
     
     
+**--------------------**
+**Spring Boot Actuator**
+
+**Problem**
+    - How can I monitor and manage my application?
+    - How can i check the application health?
+    - How can I access application metrics?
+
+**Solution: Spring Boot Actuator**
+    - Exposes endpoints to monitor and manage your application
+    - You easily get DevOps functionality out-of-the-box
+    - Simply add the dependency to your POM file
+    - REST endpoints are __automatically__ added to your application
+    - *No need to write additional code. You get new REST endpoints for free.*
+
+    - Adding the dependency to your POM file
+    ```xml
+    <dependency>
+      <groupId>org.springframework.boot<groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    ```
+
+    - Automatically exposes endpoints for metrics out-of-the-box
+    - Endpoints are prefixed with: **/actuator**
+
+    /health - Health information about your app
+    /info - Information about your project
+    
+**Health Endpoint**
+    - /health checks the status of your app
+    - Normally used by monitoring apps to see if your app is up or down
+    `localhost:8080/actuator/health`
+    `{"status" : "UP"}`
+    - Health status is customizable based on your custom business logic
+
+**Info Endpoint**
+    - /info gives information about your application
+    - Default is empty
+    `localhost:8080/actuator/info`
+    `{}`
+
+    - Update **application.properties** with your app info
+    File: src/main/resources/application.properties
+    ```
+    info.app.name=Cool App
+    info.app.description=An amazing app
+    info.app.version=1.0.0
+    ```
+    - will send back a JSON
+
+
+**Spring Boot Actuator Endpoints**
+- There are 10+ Spring Boot Actuator endpoints
+- /auditevents - audit events for your app
+- /beans - List of all beans registered in the Spring application context
+- /mappings - List of all @RequestMapping paths
+...
+http://www.luv2code.com/actuator-endpoints
+
+**Exposing Endpoints**
+- By default, only **/health** and **/info** are exposed
+- To expose all actuator endpoints over HTTP
+File: src/main/resources/application.properties
+```properties
+# Use wildcard "*" to expose all endpoints
+# Can also expose individual endpoints with a comma-delimited
+# 
+management.endpoints.web.exposure.include=*
+```
+
+**Get A List of Beans**
+- Access http://localhost:8080/actuator/beans
+
+
+**Development Process**
+1) Edit **pom.xml** and **spring-boot-starter-actuator**
+2) View actuator endpoints for: **/health** and **/info**
+3) Edit application.properties to customize **/info**
+
     
     
     
+**Spring Boot Actuator - Applying Security to Actuator Endpoints**
+What about Security?
+- You may NOT want to expose all of this information
+- Add Spring Security to project and endpoints are secured
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  </artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+```
+/health and /info are still available 
+You can disable them if you want
+
+**Secured Endpoints**
+- Now when you access /actuator/beans
+- Spring Security will prompt for login
+*Default username: **user***
+*Check console logs for password*
+    
+    
+**Spring Security configuration**
+- You can override default user name and generated password
+File: src/main/resources/application.properties
+```properties
+spring.security.user.name=alex
+spring.security.user.password=asdf
+```
+**Customizing Spring Security**
+- You can customize Spring Security for Spring Boot Actuator
+    - Use a database for roles, encrypted passwords, etc...
+- Follow the same techniques as regular Spring Security
+```java
+public class DemoSecurityConfig extends WebSecurityConfigurerAdapter {
+  @Autowired
+  private DataSource securityDataSource;
+
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.jdbcAuthentication().dataSource(securityDataSource);
+  }
+  ...
+}
+```
+
+**Excluding  Endpoints**
+- To exclude /health and /info
+File: src/main/resources/application.properties
+```properties
+# Exclude individual endpoints with a comma-delimited list
+#
+management.endpoints.web.exposure.exclude=health,info
+```
+
+**Development Process**
+1) Edit **pom.xml** and add **spring-boot-starter-security**
+2) Verify security on actuator endpoints for: **/beans** etc...
+3) Disable endpoints for **/health** and **/info**
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+**---------------**
+**Running from the Command-Line**
+- Since we are using Spring Boot, the server is embedded in our JAR file
+- No need to have a separate server installed/running
+- Spring Boot apps are self contained
+    - JAR file includes your application code AND includes the server
+    - Self-contained unit and nothing else to install
+
+Option 1: Use `java -jar mycoolapp.jar`
+
+Option 2: Use Spring Boot Maven plugin `mvnw spring-boot:run`
+
+**Development Process**
+1) Exit the IDE
+2) Package the app using `mvnw package`
+3) Run app using `java -jar`
+or
+4) Run app using Spring Boot Maven plugin, `mvnw spring-boot:run`
     
     
     
